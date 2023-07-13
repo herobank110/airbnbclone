@@ -15,7 +15,7 @@ class Command:
 
     @staticmethod
     def _parse_pattern(syntax: str):
-        ret_val = syntax
+        ret_val = re.escape(syntax)
         for match in re.findall("(:\w+)", syntax):
             ret_val = ret_val.replace(match, f"(?P<{match[1:]}>\w+)")
         return re.compile(ret_val)
@@ -78,13 +78,22 @@ def delete(id_):
 @register_command("select * from :object_type")
 def select_all(object_type: str):
     table = _storage.data.get(object_type)
-    print(table)
+    print_basic_table(table)
+
+
+def print_basic_table(data: list[dict[str, any]]):
+    def f(x): return str(x)[:13].ljust(13)
+    if data:
+        keys = data[0].keys()
+        print(" " + " | ".join(map(f, keys)))
+        print("-" + " + ".join(f("-"*13) for _ in keys))
+        print( "\n".join(" " + " | ".join(
+            map(f, (row[key] for key in keys))) for row in data))
 
 
 @register_command("select :id_")
 def select_one(id_: str):
     pass
-    # table = _file_storage.data.get(object_type)
 
 
 @register_command("quit")
