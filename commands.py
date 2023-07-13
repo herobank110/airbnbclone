@@ -53,15 +53,15 @@ def process_line(storage, line: str):
 # Register Commands
 
 
-@register_command("create :object_type")
-def create(object_type: str):
-    class_ = get_model_class(object_type)
+@register_command("create :model")
+def create(model: str):
+    class_ = get_model_class(model)
     if class_:
-        table = _storage.data.get(object_type, [])
+        table = _storage.data.get(model, [])
         new_object = class_.create()
         print("Create new object: ", new_object)
         table.append(new_object.to_dict())
-        _storage.data[object_type] = table
+        _storage.data[model] = table
         _storage.save()
 
 
@@ -75,9 +75,9 @@ def delete(id_):
     pass
 
 
-@register_command("select * from :object_type")
-def select_all(object_type: str):
-    table = _storage.data.get(object_type)
+@register_command("select * from :model")
+def select_all(model: str):
+    table = _storage.data.get(model)
     print_basic_table(table)
 
 
@@ -117,13 +117,13 @@ def show_models():
     print()
 
 
-@register_command("describe :object_type")
-def describe(object_type: str):
-    class_ = get_model_class(object_type)
+@register_command("describe :model")
+def describe(model: str):
+    class_ = get_model_class(model)
     if class_ is None:
-        logging.warning(f"Invalid object type: '{object_type}'")
+        logging.warning(f"Invalid object type: '{model}'")
         return
-    print(f"{object_type}:")
+    print(f"{model}:")
     for name, field in class_._get_fields().items():
         print(f"  {name}: {field.type_.__name__}")
     print()

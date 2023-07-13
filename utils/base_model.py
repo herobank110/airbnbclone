@@ -84,9 +84,9 @@ def deserialize(type_: Type[FieldValueType], json_value) -> FieldValueType:
             return datetime.strptime(json_value, date_format)
 
 
-def get_model_class(object_type: str) -> BaseModel:
+def get_model_class(model: str) -> BaseModel:
     class_ = next((subclass for subclass in BaseModel.__subclasses__()
-                   if subclass.__name__ == object_type), None)
+                   if subclass.__name__ == model), None)
     if class_ is None:
-        logging.warning(f"Couldn't find model class for type '{object_type}'")
+        logging.warning(f"Couldn't find model class for type '{model}'")
     return class_
