@@ -19,6 +19,8 @@ class BaseModel:
     """
 
     id_ = Field(uuid.UUID)
+    created_at = Field(datetime)
+    updated_at = Field(datetime)
 
     def __init__(self, **kwargs):
         """Set fields by kwargs, with validation for data types.
@@ -41,15 +43,13 @@ class BaseModel:
 
     @classmethod
     def create(cls):
-        return cls(id_=uuid.uuid4())
-        # obj.created_at = datetime.now()
-        # obj.updated_at = datetime.now()
-        return obj
+        return cls(id_=uuid.uuid4(),
+                   created_at=datetime.now(),
+                   updated_at=datetime.now(),)
 
     @classmethod
     def load(cls, json_obj: dict):
-        for key, value in json_obj.items():
-            obj = cls()
+        return cls(**{key: deserialize(value) for key, value in json_obj.items()})
 
     def to_dict(self):
         """
