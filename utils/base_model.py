@@ -21,19 +21,35 @@ class BaseModel:
     id_ = Field(uuid.UUID)
 
     def __init__(self, **kwargs):
-        """
-        Initialize attributes: uuid4, dates when class was created/updated
+        """Set fields by kwargs, with validation for data types.
         """
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            field = getattr(self, key, None)
+            if field is None:
+                logging.warning(
+                    f"Unexpected key for initializing model: {key}")
+                continue
+            if not isinstance(field, Field):
+                logging.warning(
+                    f"Invalid key type for initializing model: {key}")
+                continue
+            if value is not None and type(value) is not field.type_:
+                logging.warning(
+                    f"Invalid value type for initializing model: {value}")
+                continue
+            field.value = value
 
     @classmethod
     def create(cls):
-        obj = cls()
-        obj.id_.value = uuid.uuid4()
+        return cls(id_=uuid.uuid4())
         # obj.created_at = datetime.now()
         # obj.updated_at = datetime.now()
         return obj
+
+    @classmethod
+    def load(cls, json_obj: dict):
+        for key, value in json_obj.items():
+            obj = cls()
 
     def to_dict(self):
         """
@@ -58,17 +74,15 @@ def serialize(value: FieldValueType):
     return value
 
 
-def deserialize(value_str: str) -> FieldValueType:
-    return value_str
-    date_format = '%Y-%m-%dT%H:%M:%S.%f'
-    if "created_at" == key:
-        self.created_at = datetime.strptime(kwargs["created_at"],
-                                            date_format)
-    elif "updated_at" == key:
-        self.updated_at = datetime.strptime(kwargs["updated_at"],
-                                            date_format)
-    elif "__class__" == key:
-        pass
+def deserialize(type_: Type[FieldValueType], json_value) -> FieldValueType:
+    # Primitive types will be converted to python types already.
+    if json_value:
+        # value is not null or empty
+        if type_ is uuid.UUID:
+            return uuid.UUID(json_value)
+        if type_ is datetime:
+            date_format = '%Y-%m-%dT%H:%M:%S.%f'
+            return datetime.strptime(json_value, date_format)
 
 
 def get_model_class(object_type: str) -> BaseModel:
