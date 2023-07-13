@@ -1,6 +1,6 @@
+import logging
 import sys
 import re
-from models.engines.file_storage import FileStorage
 from utils.base_model import get_model_class
 
 
@@ -36,18 +36,19 @@ def register_command(syntax: str):
     return command_inner
 
 
-def process_line(line: str):
+def process_line(storage, line: str):
     """Parse and execute the line
     """
+    global _storage
+    _storage = storage
+
     for command in _commands:
         match = command.pattern.match(line)
         if match:
             values = match.groupdict()
             command.fn(**values)
             return
-
-
-_file_storage = FileStorage("data.json")
+    logging.warning("No matching command found")
 
 # Register Commands
 
@@ -56,12 +57,12 @@ _file_storage = FileStorage("data.json")
 def create(object_type: str):
     class_ = get_model_class(object_type)
     if class_:
-        table = _file_storage.data.get(object_type, [])
+        table = _storage.data.get(object_type, [])
         new_object = class_.create()
         print("Create new object: ", new_object)
         table.append(new_object.to_dict())
-        _file_storage.data[object_type] = table
-        _file_storage.save()
+        _storage.data[object_type] = table
+        _storage.save()
 
 
 @register_command("update :id_ set :field = :value")
@@ -76,7 +77,7 @@ def delete(id_):
 
 @register_command("select * from :object_type")
 def select_all(object_type: str):
-    table = _file_storage.data.get(object_type)
+    table = _storage.data.get(object_type)
     print(table)
 
 

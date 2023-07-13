@@ -1,10 +1,17 @@
-import cmds
+import commands
+from models.engines.file_storage import FileStorage
 
+import logging
+logging.basicConfig(format="%(levelname)s: %(message)s")
 
 def run_console():
+    storage = FileStorage("data.json")
+    print("Welcome to hbnb\n"
+          "\n"
+          "To view all commands, enter 'help'\n")
     while True:
         line = input("(hbnb) ")
-        cmds.process_line(line)
+        commands.process_line(storage, line)
 
 
 if __name__ == "__main__":
