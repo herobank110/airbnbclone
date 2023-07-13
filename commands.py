@@ -109,11 +109,11 @@ def help_():
     print()
 
 
-@register_command("show models")
-def show_models():
-    print("Available models:\n")
+@register_command("list models")
+def list_models():
+    print("Available models:")
     for subclass in BaseModel.__subclasses__():
-        print(subclass.__name__)
+        print("  " + subclass.__name__)
     print()
 
 
