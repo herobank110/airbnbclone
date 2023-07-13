@@ -1,37 +1,39 @@
 import re
 import cmds
-import sys
+
+
+class Command:
+    def __init__(self, syntax: str, command: callable):
+        self.syntax = syntax
+        self.command = command
+        self.pattern = self._parse_syntax(syntax)
+
+    @staticmethod
+    def _parse_syntax(syntax: str):
+        ret_val = syntax
+        for match in re.findall("(:\w+)", syntax):
+            ret_val = ret_val.replace(match, f"(?P<{match[1:]}>\w+)")
+        return re.compile(ret_val)
+
+
+commands = [Command("create :object_type", cmds.create),
+            Command("update :id set :field = :value", cmds.update),
+            Command("delete :id", cmds.delete),
+            Command("select :id", cmds.select_one),
+            Command("select * from :object_type", cmds.select_all),
+            Command("quit", cmds.quit_)]
 
 
 def process_line(line: str):
-    """
-    commands:
-
-    create <object>
-    update <id> set <field> = <value>
-    delete <id>
-    select <id>
-    select * from <object_type>
-    quit
+    """Parse and execute the line
     """
 
-    if line == "quit":
-        sys.exit(0)
-
-    select_all_pattern = "select * from (\w*)"
-    select_all_match = re.match(select_all_pattern, line)
-    if select_all_match:
-        object_type = select_all_match.group(1)
-        cmds.select_all(object_type)
-        return
-
-    create_pattern = "create (\w*)"
-    create_match = re.match(create_pattern, line)
-    if create_match:
-        object_type = create_match.group(1)
-        cmds.create(object_type)
-        return
-
+    for command in commands:
+        match = command.pattern.match(line)
+        if match:
+            values = match.groupdict()
+            command.command(**values)
+            return
 
 
 def run_console():
