@@ -58,9 +58,10 @@ class BaseModel:
         return {name: serialize(field.value)
                 for name, field in self._get_fields().items()}
 
-    def _get_fields(self):
+    @classmethod
+    def _get_fields(cls):
         return {key: value
-                for key, value in ((key, getattr(self, key)) for key in dir(self))
+                for key, value in ((key, getattr(cls, key)) for key in dir(cls))
                 if isinstance(value, Field)}
 
 

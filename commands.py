@@ -1,7 +1,7 @@
 import logging
 import sys
 import re
-from utils.base_model import get_model_class
+from utils.base_model import get_model_class, BaseModel
 
 
 class Command:
@@ -87,7 +87,7 @@ def print_basic_table(data: list[dict[str, any]]):
         keys = data[0].keys()
         print(" " + " | ".join(map(f, keys)))
         print("-" + " + ".join(f("-"*13) for _ in keys))
-        print( "\n".join(" " + " | ".join(
+        print("\n".join(" " + " | ".join(
             map(f, (row[key] for key in keys))) for row in data))
 
 
@@ -103,7 +103,27 @@ def quit_():
 
 @register_command("help")
 def help_():
-    print("\nAvailable commands:\n")
+    print("Available commands:\n")
     for command in _commands:
         print(" ", re.sub(r"_$|_(\W)", r"\1", command.syntax))
+    print()
+
+
+@register_command("show models")
+def show_models():
+    print("Available models:\n")
+    for subclass in BaseModel.__subclasses__():
+        print(subclass.__name__)
+    print()
+
+
+@register_command("describe :object_type")
+def describe(object_type: str):
+    class_ = get_model_class(object_type)
+    if class_ is None:
+        logging.warning(f"Invalid object type: '{object_type}'")
+        return
+    print(f"{object_type}:")
+    for name, field in class_._get_fields().items():
+        print(f"  {name}: {field.type_.__name__}")
     print()
