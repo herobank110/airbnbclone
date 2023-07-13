@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import uuid4
+import uuid
 from datetime import datetime
 from typing import Type, Union
 import logging
@@ -18,6 +18,8 @@ class BaseModel:
     """Parent class for all models to determine saving/loading.
     """
 
+    id_ = Field(uuid.UUID)
+
     def __init__(self, **kwargs):
         """
         Initialize attributes: uuid4, dates when class was created/updated
@@ -28,34 +30,10 @@ class BaseModel:
     @classmethod
     def create(cls):
         obj = cls()
-        # obj.id = str(uuid4())
+        obj.id_.value = uuid.uuid4()
         # obj.created_at = datetime.now()
         # obj.updated_at = datetime.now()
-        # models.storage.new(obj)
         return obj
-
-    # def __str__(self):
-    #     """
-    #     Return class name, id, and the dictionary
-    #     """
-    #     return ('[{}] ({}) {}'.
-    #             format(self.__class__.__name__, self.id, self.__dict__))
-
-    # def __repr__(self):
-    #     """
-    #     returns string repr
-    #     """
-    #     return (self.__str__())
-
-    # def save(self):
-    #     """
-    #     Instance method to:
-    #     - update current datetime
-    #     - invoke save() function &
-    #     - save to serialized file
-    #     """
-    #     self.updated_at = datetime.now()
-    #     models.storage.save()
 
     def to_dict(self):
         """
@@ -73,7 +51,11 @@ class BaseModel:
 
 
 def serialize(value: FieldValueType):
-    return str(value)
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, uuid.UUID):
+        return value.hex
+    return value
 
 
 def deserialize(value_str: str) -> FieldValueType:
