@@ -6,7 +6,7 @@ logging.basicConfig(format="%(levelname)s: %(message)s")
 
 def run_console():
     storage = FileStorage("data.json")
-    print("Welcome to hbnb\n"
+    print("Welcome to hbnb console\n"
           "\n"
           "To view all commands, enter 'help'\n")
     while True:
