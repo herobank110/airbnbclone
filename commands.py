@@ -96,19 +96,6 @@ def select_one(id_: str):
     pass
 
 
-@register_command("quit")
-def quit_():
-    sys.exit(0)
-
-
-@register_command("help")
-def help_():
-    print("Available commands:")
-    for command in _commands:
-        print(" ", re.sub(r"_$|_(\W)", r"\1", command.syntax))
-    print()
-
-
 @register_command("list models")
 def list_models():
     print("Available models:")
@@ -127,3 +114,16 @@ def describe(model: str):
     for name, field in class_._get_fields().items():
         print(f"  {name}: {field.type_.__name__}")
     print()
+
+
+@register_command("help")
+def help_():
+    print("Available commands:")
+    for command in _commands:
+        print(" ", re.sub(r"_$|_(\W)", r"\1", command.syntax))
+    print()
+
+
+@register_command("quit")
+def quit_():
+    sys.exit(0)
