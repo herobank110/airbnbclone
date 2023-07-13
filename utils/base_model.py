@@ -39,7 +39,7 @@ class BaseModel:
                 logging.warning(
                     f"Invalid value type for initializing model: {value}")
                 continue
-            field.value = value
+            field.value = deserialize(field.type_, value)
 
     @classmethod
     def create(cls):
@@ -49,7 +49,7 @@ class BaseModel:
 
     @classmethod
     def load(cls, json_obj: dict):
-        return cls(**{key: deserialize(value) for key, value in json_obj.items()})
+        return cls(**json_obj.items())
 
     def to_dict(self):
         """
