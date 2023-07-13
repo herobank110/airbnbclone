@@ -90,3 +90,11 @@ def select_one(id_: str):
 @register_command("quit")
 def quit_():
     sys.exit(0)
+
+
+@register_command("help")
+def help_():
+    print("\nAvailable commands:\n")
+    for command in _commands:
+        print(" ", re.sub(r"_$|_(\W)", r"\1", command.syntax))
+    print()
