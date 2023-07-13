@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 from datetime import datetime
-from typing import Union
+from typing import Type, Union
 import logging
 
 
@@ -9,9 +9,9 @@ FieldValueType = Union[str, int, float, datetime]
 
 
 class Field:
-    def __init__(self, default_value: FieldValueType):
-        self.type_ = type(default_value)
-        self.value = default_value
+    def __init__(self, type_: Type[FieldValueType]):
+        self.type_ = type_
+        self.value = None
 
 
 class BaseModel:
