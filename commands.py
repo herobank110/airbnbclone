@@ -103,7 +103,7 @@ def quit_():
 
 @register_command("help")
 def help_():
-    print("Available commands:\n")
+    print("Available commands:")
     for command in _commands:
         print(" ", re.sub(r"_$|_(\W)", r"\1", command.syntax))
     print()
