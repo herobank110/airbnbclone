@@ -1,21 +1,21 @@
-#!/usr/bin/python3
 from datetime import datetime
 from uuid import uuid4
-# import models
-
-"""
-Parent class to all classes in the AirBnB clone project
-"""
+from datetime import datetime
+from typing import Union
+import logging
 
 
-class BaseModel():
-    """Parent class for AirBnB clone project
-    Methods:
-        __init__(self, *args, **kwargs)
-        __str__(self)
-        __save(self)
-        __repr__(self)
-        to_dict(self)
+FieldValueType = Union[str, int, float, datetime]
+
+
+class Field:
+    def __init__(self, default_value: FieldValueType):
+        self.type_ = type(default_value)
+        self.value = default_value
+
+
+class BaseModel:
+    """Parent class for all models to determine saving/loading.
     """
 
     def __init__(self, **kwargs):
@@ -24,7 +24,7 @@ class BaseModel():
         """
         for key, value in kwargs.items():
             setattr(self, key, value)
-    
+
     @classmethod
     def create(cls):
         obj = cls()
@@ -62,16 +62,22 @@ class BaseModel():
         Return dictionary of BaseModel with string formats of times
         """
         return {
-            "hello": 2
+            name: serialize(field.value)
+            for name, field in self._get_fields().items()
         }
-        dic = self.__dict__.copy()
-        dic["created_at"] = self.created_at.isoformat()
-        dic["updated_at"] = self.updated_at.isoformat()
-        dic["__class__"] = self.__class__.__name__
-        return dic
 
-            
-def deserialize_json(json_obj):
+    def _get_fields(self):
+        return {key: value
+                for key, value in ((key, getattr(self, key)) for key in dir(self))
+                if isinstance(value, Field)}
+
+
+def serialize(value: FieldValueType):
+    return str(value)
+
+
+def deserialize(value_str: str) -> FieldValueType:
+    return value_str
     date_format = '%Y-%m-%dT%H:%M:%S.%f'
     if "created_at" == key:
         self.created_at = datetime.strptime(kwargs["created_at"],
@@ -84,7 +90,8 @@ def deserialize_json(json_obj):
 
 
 def get_model_class(object_type: str) -> BaseModel:
-    print("subclases", BaseModel.__subclasses__())
-    print("subclases names", [x.__name__ for x in BaseModel.__subclasses__()])
-    return next((subclass for subclass in BaseModel.__subclasses__()
-                if subclass.__name__ == object_type), None)
+    class_ = next((subclass for subclass in BaseModel.__subclasses__()
+                   if subclass.__name__ == object_type), None)
+    if class_ is None:
+        logging.warning(f"Couldn't find model class for type '{object_type}'")
+    return class_
