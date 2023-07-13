@@ -1,7 +1,7 @@
 """user class, subclass of BaseModel
 """
 
-from models.utils import BaseModel, Field
+from utils.base_model import BaseModel, Field
 
 
 class User(BaseModel):
