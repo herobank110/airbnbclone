@@ -55,10 +55,8 @@ class BaseModel:
         """
         Return dictionary of BaseModel with string formats of times
         """
-        return {
-            name: serialize(field.value)
-            for name, field in self._get_fields().items()
-        }
+        return {name: serialize(field.value)
+                for name, field in self._get_fields().items()}
 
     def _get_fields(self):
         return {key: value
